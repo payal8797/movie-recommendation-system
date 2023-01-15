@@ -28,30 +28,30 @@ class Movie extends Model
                     ->orderBy('ranking', 'desc');
     }
 
-    // public function scopeSimilarUsers( Builder $query){
-    //     return $query->selectRaw('r1.userid, 
-    //                             COUNT(*) as similar_taste_count')
-    //                 ->from('ratings as r1')
-    //                 ->join('ratings as r2', function($join) {
-    //                     $join->on('r1.movieid', '=', 'r2.movieid')
-    //                         ->where('r1.userid', '!=', 'r2.userid')
-    //                         ->where('r1.rating', '=', 'r2.rating');
-    //                 })
-    //                 ->groupBy('r1.userid');
-    // }
-
-    public function scopeSimilarUsers( Builder $query){
-        return $query->selectRaw("r1.userid as user1,r2.userid as user2 ,
+    public function scopeFetchSimilarUsers( Builder $query){
+        return $query->selectRaw("r2.userid as user2,
                                     COUNT(*) as similar_taste_count ,
                                     STRING_AGG(m.title, ',') as movieList") 
                     ->from('ratings as r1')
                     ->join('movies as m', 'r1.movieid', '=', 'm.movieid')
-                    ->join('ratings as r2', function($join) {
+                    ->join('ratings as r2', function($join){
                         $join->on('r1.movieid', '=', 'r2.movieid')
-                            ->on('r1.userid', '!=', 'r2.userid')
-                            ->on('r1.rating', '=', 'r2.rating');
+                            ->on('r1.rating', '=', 'r2.rating')
+                            ->on('r1.userid', '!=', 'r2.userid');
+                        })
+                    ->havingRaw('COUNT(*) > 10')
+                    ->groupBy('r1.userid', 'r2.userid');
+    }
+
+    public function scopeRecommendMovies( Builder $query, $user){
+        return $query->selectRaw(" m.movieid,m.title, m.genres, SUM(r.rating) * COUNT(r.userid) as avg_rating") 
+                    ->from('movies as m')
+                    ->leftJoin('ratings as r', function($join) use($user) {
+                        $join->on('r.movieid', '=', 'm.movieid')
+                            ->where('r.userid', '!=', $user);
                     }) 
-                    ->havingRaw('COUNT(*) > 50')
-                    ->groupBy('r1.userid','r2.userid');
+                    ->whereNotNull('r.rating')
+                    ->groupBy('m.movieid','m.title', 'm.genres')
+                    ->orderBy('avg_rating', 'desc');
     }
 }

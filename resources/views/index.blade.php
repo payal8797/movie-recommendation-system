@@ -15,7 +15,7 @@
 	</blockquote>
 </div>
 <br>
-<div class="row row-cols-5">
+<div class="row row-cols-5 ps-4">
 	@if(count($data) > 0)  
 	@foreach($data as $row)
 	<div class="card-deck">
@@ -31,7 +31,7 @@
 	</div>
 	@endforeach
 	@else
-	<p class="card-text">Sorry, no movie(s) found with given name!!!</p>
+	<p class="card-text justify-content-center">Sorry, no movie(s) found with given name!!!</p>
 	@endif
 </div>
 <div class="d-flex justify-content-center">
@@ -44,11 +44,6 @@
 <style>
     .header{
         background-color:grey;
-    }
-	.row {
-		padding-left: 20px;
-		padding-right: 20px;
-	}
-		
+    }		
 </style>
 

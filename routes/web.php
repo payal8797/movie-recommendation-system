@@ -19,7 +19,9 @@ Route::get('/', function () {
 
 Route::get('/search', 'movieController@search');
 Route::get('/topRatedMovies', 'movieController@topRatedMovies');
-Route::get('/similarUsers', 'movieController@similarUsers');
+Route::get('/similarUsers', 'movieController@goToSimilarUsers');
+Route::get('/fetchSimilarUsers', 'movieController@fetchSimilarUsers');
+Route::get('/recommendMovies', 'movieController@recommendMovies');
 
 
 Route::resource('movies', movieController::class);

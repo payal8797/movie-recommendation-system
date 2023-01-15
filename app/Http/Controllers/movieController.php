@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+
 class movieController extends Controller
 {
     /**
@@ -15,9 +17,7 @@ class movieController extends Controller
     public function index()
     {       
         $header='List of all movies!!!';
-        $data = Movie::with('GetAverageRatings')    
-                       ->paginate(60);
-
+        $data = Movie::with('GetAverageRatings')->paginate(60);
         return view('index', compact('data', 'header'));
     }
 
@@ -55,44 +55,19 @@ class movieController extends Controller
      * @param  \App\MovieRecommendation  $movieRecommendation
      * @return \Illuminate\Http\Response
      */
-    public function similarUsers()
+    public function goToSimilarUsers()
     {
-        $data = Movie::similarUsers()->limit(10)->get();
+        return view('goToSimilarUsers');
+    }
+
+    public function fetchSimilarUsers(Request $request)
+    {
+        $user = $request->get('userid','');
+        $data = Movie::where('r1.userid', '=', $user)->fetchSimilarUsers()->limit(10)->get();
         #dd($data->toArray());
-        return view('similarUsers', compact('data'));
+        $recomData = Movie::recommendMovies($user)->limit(10)->get();
+        return view('fetchSimilarUsers', compact('data', 'user'))->withQuery($request->get('user',''));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\MovieRecommendation  $movieRecommendation
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(MovieRecommendation $movieRecommendation)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\MovieRecommendation  $movieRecommendation
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, MovieRecommendation $movieRecommendation)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\MovieRecommendation  $movieRecommendation
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(MovieRecommendation $movieRecommendation)
-    {
-        //
-    }
 }
